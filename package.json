@@ -8,6 +8,11 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "rollup -c"
   },
+  "types": "types/index.d.ts",
+  "files": [
+    "dist",
+    "types"
+  ],
   "keywords": [],
   "author": "",
   "license": "ISC",
