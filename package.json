@@ -13,8 +13,13 @@
     "dist",
     "types"
   ],
-  "keywords": [],
-  "author": "",
+  "homepage": "https://github.com/hug-sun/rollup-plugin-element3-webgl",
+  "keywords": [
+    "rollup-plugin",
+    "element3",
+    "webgl"
+  ],
+  "author": "https://github.com/cuixiaorui",
   "license": "ISC",
   "devDependencies": {
     "rollup": "^2.48.0"
