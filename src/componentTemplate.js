@@ -1,4 +1,4 @@
-export default (vertexShader, fragmentShader, watchers, properties) => `
+export default (vertexShader, fragmentShader, watchers, properties,initCode) => `
 import { h, onMounted, ref, watchEffect,watch } from "vue";
 
 export default {
@@ -61,6 +61,8 @@ export default {
         props["indicesCount"]
       );
       //gl.drawArrays(gl.POINTS, 0, 3);
+
+      ${initCode}
     });
 
     ${watchers}

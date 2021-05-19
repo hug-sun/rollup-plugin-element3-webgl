@@ -91,6 +91,17 @@ void main(){
       //TODO
     },
   };
+
+  var uniformInitTemplate = (name, jsType, ctxMethod) => `
+    (function(){
+      if(!gl||!glProgram)
+        return;
+      let ${name} = gl.getUniformLocation(glProgram,'${name}');
+      gl.${ctxMethod}(${name}, ${jsType}(newVal));
+      gl.drawArrays(gl.TRIANGLE_STRIP, props['indicesStart'], props['indicesCount']);
+    })()
+  `;
+
   var watcherTemplate = (name, jsType, ctxMethod) => `
     watch(()=>props.${name},(newVal)=>{
         if(!gl||!glProgram)
@@ -98,6 +109,9 @@ void main(){
         let ${name} = gl.getUniformLocation(glProgram,'${name}');
         gl.${ctxMethod}(${name}, ${jsType}(newVal));
         gl.drawArrays(gl.TRIANGLE_STRIP, props['indicesStart'], props['indicesCount']);
+    },
+    {
+      immediate: true
     })
     `;
 
@@ -150,6 +164,7 @@ void main(){
 
   var watchersCode = "";
   var propertiesCode = "";
+  var initCode = ""
 
   for (let uniform of getUniforms(vertexShaderSource)) {
     watchersCode += watcherTemplate(
@@ -158,6 +173,12 @@ void main(){
       typeMapping[uniform[1]].ctxMethod
     );
     propertiesCode += `    ${uniform[2]} : {},\n`;
+
+    initCode += uniformInitTemplate(
+      uniform[2],
+      typeMapping[uniform[1]].jsType,
+      typeMapping[uniform[1]].ctxMethod
+    );
   }
   for (let uniform of getUniforms(fragmentShaderSource)) {
     if (uniform[1] === "sampler2D") {
@@ -175,6 +196,12 @@ void main(){
       typeMapping[uniform[1]].ctxMethod
     );
     propertiesCode += `    ${uniform[2]} : {},\n`;
+
+    initCode += uniformInitTemplate(
+      uniform[2],
+      typeMapping[uniform[1]].jsType,
+      typeMapping[uniform[1]].ctxMethod
+    );
   }
 
   return {
@@ -182,7 +209,8 @@ void main(){
       vertexShaderSource,
       fragmentShaderSource,
       watchersCode,
-      propertiesCode
+      propertiesCode,
+      initCode
     ),
     map,
   };
