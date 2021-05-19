@@ -93,13 +93,9 @@ void main(){
   };
 
   var uniformInitTemplate = (name, jsType, ctxMethod) => `
-    (function(){
-      if(!gl||!glProgram)
-        return;
       let ${name} = gl.getUniformLocation(glProgram,'${name}');
-      gl.${ctxMethod}(${name}, ${jsType}(newVal));
+      gl.${ctxMethod}(${name}, ${jsType}(props.${name}));
       gl.drawArrays(gl.TRIANGLE_STRIP, props['indicesStart'], props['indicesCount']);
-    })()
   `;
 
   var watcherTemplate = (name, jsType, ctxMethod) => `
@@ -164,7 +160,7 @@ void main(){
 
   var watchersCode = "";
   var propertiesCode = "";
-  var initCode = ""
+  var uniformInit = "";
 
   for (let uniform of getUniforms(vertexShaderSource)) {
     watchersCode += watcherTemplate(
@@ -174,7 +170,7 @@ void main(){
     );
     propertiesCode += `    ${uniform[2]} : {},\n`;
 
-    initCode += uniformInitTemplate(
+    uniformInit += uniformInitTemplate(
       uniform[2],
       typeMapping[uniform[1]].jsType,
       typeMapping[uniform[1]].ctxMethod
@@ -197,7 +193,7 @@ void main(){
     );
     propertiesCode += `    ${uniform[2]} : {},\n`;
 
-    initCode += uniformInitTemplate(
+    uniformInit += uniformInitTemplate(
       uniform[2],
       typeMapping[uniform[1]].jsType,
       typeMapping[uniform[1]].ctxMethod
@@ -210,7 +206,7 @@ void main(){
       fragmentShaderSource,
       watchersCode,
       propertiesCode,
-      initCode
+      uniformInit
     ),
     map,
   };
