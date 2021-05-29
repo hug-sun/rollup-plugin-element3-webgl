@@ -1,5 +1,6 @@
 import fs from "fs";
 import t from "./componentTemplate.js";
+import { mapType } from "./typeMap";
 
 export default function (fragmentShaderSource, map) {
   var hasVertexShader = false;
@@ -17,80 +18,6 @@ void main(){
 `;
     hasVertexShader = false;
   }
-
-  var typeMapping = {
-    bool: {
-      jsType: "Boolean",
-      ctxMethod: "uniform1fv",
-    },
-    bvec2: {
-      jsType: "Float32Array",
-      ctxMethod: "uniform2fv",
-    },
-    bvec3: {
-      jsType: "Float32Array",
-      ctxMethod: "uniform3fv",
-    },
-    bvec4: {
-      jsType: "Float32Array",
-      ctxMethod: "uniform4fv",
-    },
-
-    float: {
-      jsType: "Number",
-      ctxMethod: "uniform1f",
-    },
-    vec2: {
-      jsType: "Array",
-      ctxMethod: "uniform2fv",
-    },
-    vec3: {
-      jsType: "Array",
-      ctxMethod: "uniform3fv",
-    },
-    vec4: {
-      jsType: "Array",
-      ctxMethod: "uniform4fv",
-    },
-
-    int: {
-      jsType: "Number",
-      ctxMethod: "uniform1i",
-    },
-    ivec2: {
-      jsType: "Int32Array",
-      ctxMethod: "uniform2iv",
-    },
-    ivec3: {
-      jsType: "Int32Array",
-      ctxMethod: "uniform3iv",
-    },
-    ivec4: {
-      jsType: "Int32Array",
-      ctxMethod: "uniform4iv",
-    },
-
-    mat2: {
-      jsType: "Float32Array",
-      ctxMethod: "uniformMatrix2fv",
-    },
-    mat3: {
-      jsType: "Float32Array",
-      ctxMethod: "uniformMatrix3fv",
-    },
-    mat4: {
-      jsType: "Float32Array",
-      ctxMethod: "uniformMatrix4fv",
-    },
-
-    sampler2D: {
-      jsType: "Float32Array",
-    },
-
-    samplerCube: {
-      //TODO
-    },
-  };
 
   var uniformInitTemplate = (name, jsType, ctxMethod) => `
       let ${name} = gl.getUniformLocation(glProgram,'${name}');
@@ -165,38 +92,38 @@ void main(){
   for (let uniform of getUniforms(vertexShaderSource)) {
     watchersCode += watcherTemplate(
       uniform[2],
-      typeMapping[uniform[1]].jsType,
-      typeMapping[uniform[1]].ctxMethod
+      mapType(uniform[1]).jsType,
+      mapType(uniform[1]).ctxMethod
     );
     propertiesCode += `    ${uniform[2]} : {},\n`;
 
     uniformInit += uniformInitTemplate(
       uniform[2],
-      typeMapping[uniform[1]].jsType,
-      typeMapping[uniform[1]].ctxMethod
+      mapType(uniform[1]).jsType,
+      mapType(uniform[1]).ctxMethod
     );
   }
   for (let uniform of getUniforms(fragmentShaderSource)) {
     if (uniform[1] === "sampler2D") {
       watchersCode += sampler2DTemplate(
         uniform[2],
-        typeMapping[uniform[1]].jsType,
-        typeMapping[uniform[1]].ctxMethod
+        mapType(uniform[1]).jsType,
+        mapType(uniform[1]).ctxMethod
       );
       propertiesCode += `    ${uniform[2]} : {},\n`;
       continue;
     }
     watchersCode += watcherTemplate(
       uniform[2],
-      typeMapping[uniform[1]].jsType,
-      typeMapping[uniform[1]].ctxMethod
+      mapType(uniform[1]).jsType,
+      mapType(uniform[1]).ctxMethod
     );
     propertiesCode += `    ${uniform[2]} : {},\n`;
 
     uniformInit += uniformInitTemplate(
       uniform[2],
-      typeMapping[uniform[1]].jsType,
-      typeMapping[uniform[1]].ctxMethod
+      mapType(uniform[1]).jsType,
+      mapType(uniform[1]).ctxMethod
     );
   }
 
